@@ -1,7 +1,8 @@
-const path = require('path')
-const HtmlWebpackPlugin = require('html-webpack-plugin')
-const { CleanWebpackPlugin } = require('clean-webpack-plugin')
-const CopyPlugin = require('copy-webpack-plugin')
+const path = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const CopyPlugin = require('copy-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 module.exports = {
   mode: 'development',
@@ -10,7 +11,22 @@ module.exports = {
   },
   output: {
     path: path.resolve(__dirname, './dist'),
-    filename: `[name].bundle.js`
+    filename: '[name].bundle.js',
+    clean: true, // Чистить папку dist перед кожною збіркою
+  },
+  module: {
+    rules: [
+      // Правило для CSS файлів
+      {
+        test: /\.css$/i,
+        use: [MiniCssExtractPlugin.loader, 'css-loader'],
+      },
+      // Правило для SCSS/SASS файлів
+      {
+        test: /\.s[ac]ss$/i,
+        use: [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader'],
+      },
+    ],
   },
   plugins: [
     new CleanWebpackPlugin(),
@@ -36,9 +52,16 @@ module.exports = {
     }),
     new CopyPlugin({
       patterns: [{ from: './src/assets', to: 'assets' }]
-    })
+    }),
+    new MiniCssExtractPlugin({
+      filename: '[name].css',
+    }),
   ],
   devServer: {
-    port: 8080
-  }
-}
+    port: 8080,
+    static: {
+      directory: path.join(__dirname, 'dist'),
+    },
+    hot: true, // Для гарячого перезавантаження
+  },
+};

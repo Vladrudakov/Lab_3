@@ -1,1 +1,2 @@
-console.log('Hello world')
+import './scss/reset.css'
+import './scss/index.scss'
